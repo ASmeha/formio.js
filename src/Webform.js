@@ -1267,7 +1267,7 @@ export default class Webform extends NestedComponent {
     this.submitting = true;
     return this.submitForm(options)
       .then(({ submission, saved }) => this.onSubmit(submission, saved))
-      .catch((err) => Promise.reject(this.onSubmissionError(err)));
+      .catch((err) => this.onSubmissionError(err));
   }
 
   /**

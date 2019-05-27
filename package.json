@@ -1,6 +1,6 @@
 {
-  "name": "formiojs",
-  "version": "3.20.17",
+  "name": "@bsynchro/formiojs",
+  "version": "1.0.0-beta.1",
   "description": "Common js library for client side interaction with <form.io>",
   "main": "index.js",
   "files": [
@@ -16,50 +16,25 @@
     "lint"
   ],
   "scripts": {
-    "build": "esdoc;gulp build",
+    "build": "gulp build",
     "watch": "babel -w ./src/ --out-dir ./lib/",
     "rebuild": "rm -rf node_modules;npm install;gulp build",
     "tag": "VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]');git add -A; git commit -m \"Build $Version\";git push origin master;git tag v$VERSION;git push origin --tags;",
-    "publish": "npm test;gulp build;npm run tag;npm publish lib;",
+    "publish": "gulp build & npm publish lib;",
     "lint": "gulp eslint",
     "serve": "jekyll serve --config _config.yml,_config.dev.yml",
-    "test": "NODE_OPTIONS=\"--max-old-space-size=4096\" karma start --verbose --single-run",
-    "test:watch": "NODE_OPTIONS=\"--max-old-space-size=4096\" karma start --no-single-run --auto-watch"
+    "test": "node --max_old_space_size=4096 ./node_modules/karma/bin/karma start --verbose --single-run",
+    "test:watch": "NODE_OPTIONS=\"--max-old-space-size=4096\" karma start --no-single-run --auto-watch",
+    "clean" :"gulp clean"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/formio/formio.js.git"
+    "url": "git+https://github.com/asmeha/formio.js.git"
   },
   "contributors": [
-    {
-      "name": "Travis Tidwell",
-      "github": "https://github.com/travist",
-      "email": "travis@form.io"
-    },
-    {
-      "name": "Randall Knutson",
-      "github": "https://github.com/randallknutson",
-      "email": "randall@form.io"
-    },
-    {
-      "name": "Doug Lee",
-      "github": "https://github.com/douglaselee",
-      "email": "douglaselee@comcast.net"
-    },
-    {
-      "name": "Eric Alter",
-      "email": "neolanders@hotmail.com"
-    },
-    {
-      "name": "Guillaume SMAHA",
-      "email": "guillaume.smaha@gmail.com"
-    }
   ],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/formio/formio.js/issues"
-  },
-  "homepage": "https://github.com/formio/formio.js#readme",
+  "homepage": "https://github.com/asmeha/formio.js#readme",
   "dependencies": {
     "browser-cookies": "^1.2.0",
     "choices.js": "^7.0.0",

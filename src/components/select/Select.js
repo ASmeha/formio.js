@@ -59,6 +59,12 @@ export default class SelectComponent extends BaseComponent {
     this.isScrollLoading = false;
     this.scrollTop = 0;
 
+    // added by me
+    this.limit = this.component.limit || 0;
+    this.skip = 0;
+    this.isListeningToScrollEvent = false;
+    this.searchValue = undefined;
+
     // If this component has been activated.
     this.activated = false;
 
@@ -236,6 +242,7 @@ export default class SelectComponent extends BaseComponent {
     this.scrollLoading = false;
     if (this.scrollList) {
       this.scrollList.removeEventListener('scroll', this.onScroll);
+      this.isListeningToScrollEvent = false;
     }
   }
 
@@ -279,8 +286,10 @@ export default class SelectComponent extends BaseComponent {
       if (
         this.currentItems.length &&
         items.length &&
-        _.isEqual(this.currentItems[0], items[0]) &&
-        _.isEqual(this.currentItems[1], items[1])
+        this.currentItems.length === items.length &&
+        items.length < this.limit &&
+          _.isEqual(this.currentItems[0], items[0]) &&
+          _.isEqual(this.currentItems[1], items[1])
       ) {
         this.stopInfiniteScroll();
         this.loading = false;
@@ -291,15 +300,11 @@ export default class SelectComponent extends BaseComponent {
       if (items.limit && (items.length < items.limit)) {
         this.stopInfiniteScroll();
       }
-
-      // Increment the loadedItems.
-      this.loadedItems += items.length;
     }
     else {
       this.selectOptions = [];
-      this.loadedItems = items.length;
     }
-
+    this.loadedItems = items.length;
     this.currentItems = items;
 
     // Add the value options.
@@ -340,6 +345,12 @@ export default class SelectComponent extends BaseComponent {
       }
     }
 
+    // If Limit equals to loaded Items, attach event to scroll
+    if (this.limit === this.loadedItems) {
+      this.scrollList.addEventListener('scroll', this.onScroll);
+      this.isListeningToScrollEvent = true;
+    }
+
     // Say we are done loading the items.
     this.itemsLoadedResolve();
   }
@@ -365,8 +376,13 @@ export default class SelectComponent extends BaseComponent {
       body = null;
     }
 
-    const limit = this.component.limit || 100;
-    const skip = this.loadedItems || 0;
+    const limit = this.limit;
+    const skip = this.skip;
+    //skip is 0 if
+    //search value is empty and when dropdown is shown and when a scroll is done
+    //skip is not 0 when ?
+    //limit is default limit when there is no scroll or when search value is changed
+    //limit is loadedItems + default limit when a scroll is done
     const query = (this.component.dataSrc === 'url') ? {} : {
       limit: limit,
       skip: skip
@@ -471,6 +487,7 @@ export default class SelectComponent extends BaseComponent {
 
   /* eslint-disable max-statements */
   updateItems(searchInput, forceUpdate) {
+    this.searchValue = searchInput;
     if (!this.component.data) {
       console.warn(`Select component ${this.key} does not have data configuration.`);
       this.itemsLoadedResolve();
@@ -630,6 +647,7 @@ export default class SelectComponent extends BaseComponent {
       noChoicesText: this.t('No choices to choose from'),
       searchPlaceholderValue: this.t('Type to search'),
       shouldSort: false,
+      resetScrollPosition: false,
       position: (this.component.dropdown || 'auto'),
       searchEnabled: useSearch,
       searchChoices: !searchField,
@@ -667,10 +685,12 @@ export default class SelectComponent extends BaseComponent {
       ) {
         this.scrollTop = this.scrollList.scrollTop;
         this.scrollLoading = true;
+        this.setLimit(this.component.limit + this.loadedItems);
         this.triggerUpdate(this.choices.input.element.value);
       }
     };
     this.scrollList.addEventListener('scroll', this.onScroll);
+    this.isListeningToScrollEvent = true;
 
     this.addFocusBlurEvents(this.focusableElement);
     this.focusableElement.setAttribute('tabIndex', tabIndex);
@@ -682,6 +702,7 @@ export default class SelectComponent extends BaseComponent {
       // Make sure to clear the search when no value is provided.
       if (this.choices && this.choices.input && this.choices.input.element) {
         this.addEventListener(this.choices.input.element, 'input', (event) => {
+          this.setLimit(this.component.limit);
           if (!event.target.value) {
             this.triggerUpdate();
           }
@@ -692,6 +713,14 @@ export default class SelectComponent extends BaseComponent {
     }
 
     this.addEventListener(input, 'showDropdown', () => {
+      if (this.dataValue === '' || this.dataValue instanceof Array) {
+        this.choices.choiceList.scrollToTop();
+        this.setLimit(this.component.limit);
+        this.triggerUpdate(this.searchValue);
+        this.update();
+        return;
+      }
+
       if (this.dataValue) {
         this.triggerUpdate();
       }
@@ -1008,5 +1037,13 @@ export default class SelectComponent extends BaseComponent {
 
   focus() {
     this.focusableElement.focus();
+  }
+
+  setSkip(val) {
+    this.skip = val;
+  }
+
+  setLimit(val) {
+    this.limit = val;
   }
 }
