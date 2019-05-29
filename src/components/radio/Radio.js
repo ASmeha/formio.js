@@ -8,7 +8,10 @@ export default class RadioComponent extends BaseComponent {
       inputType: 'radio',
       label: 'Radio',
       key: 'radio',
-      values: [{ label: '', value: '' }],
+      values: [{
+        label: '',
+        value: ''
+      }],
       fieldSet: false
     }, ...extend);
   }
@@ -193,24 +196,22 @@ export default class RadioComponent extends BaseComponent {
     }
   }
 
-  updateValue(flags, value) {
-    const changed = super.updateValue(flags, value);
-    if (changed) {
-      //add/remove selected option class
-      const value = this.dataValue;
-      const optionSelectedClass = 'radio-selected';
+  updateValue(flags, val) {
+    const changed = super.updateValue(flags, val);
+    //add/remove selected option class
+    const value = this.dataValue;
+    const optionSelectedClass = 'radio-selected';
 
-      _.each(this.wrappers, (wrapper, index) => {
-        const input = this.inputs[index];
-        if (input.value.toString() === value.toString()) {
-          //add class to container when selected
-          this.addClass(wrapper, optionSelectedClass);
-        }
-        else {
-          this.removeClass(wrapper, optionSelectedClass);
-        }
-      });
-    }
+    _.each(this.wrappers, (wrapper, index) => {
+      const input = this.inputs[index];
+      if (input.value.toString() === value.toString()) {
+        //add class to container when selected
+        this.addClass(wrapper, optionSelectedClass);
+      }
+      else {
+        this.removeClass(wrapper, optionSelectedClass);
+      }
+    });
     return changed;
   }
 }
