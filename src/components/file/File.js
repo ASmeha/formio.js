@@ -279,7 +279,7 @@ export default class FileComponent extends BaseComponent {
     return this.ce('a', {
       href: file.url, target: '_blank',
       onClick: this.getFile.bind(this, file)
-    }, file.originalName || file.name);
+    }, this.ce('span', { class: 'fileLinkLabel' }, this.text(file.originalName || file.name)));
   }
 
   createTypeSelect(file) {
@@ -490,12 +490,12 @@ export default class FileComponent extends BaseComponent {
                 [
                   this.ce('i', { class: this.iconClass('cloud-upload') }),
                   this.text(' '),
-                  this.text('Drop files to attach, or'),
+                  this.ce('span', { class: 'attachFilesLabel' }, this.text('Drop files to attach, or')),
                   this.text(' '),
                   this.buildBrowseLink(),
                   this.component.webcam ?
                     [
-                      this.text(', or'),
+                      this.ce('span', { class: 'orUseCameraLabel' }, this.text(', or')),
                       this.text(' '),
                       this.ce('a',
                         {
