@@ -334,10 +334,10 @@ export default class SelectComponent extends BaseComponent {
     this.loading = false;
 
     // If a value is provided, then select it.
-    if (this.dataValue) {
+    if (this.dataValue && this.valueExistInItems(this.dataValue, items)) {
       this.setValue(this.dataValue, true);
     }
-    else {
+    else if (this.defaultValue) {
       // If a default value is provided then select it.
       const defaultValue = this.defaultValue;
       if (defaultValue) {
@@ -1045,5 +1045,9 @@ export default class SelectComponent extends BaseComponent {
 
   setLimit(val) {
     this.limit = val;
+  }
+
+  valueExistInItems(value, items) {
+    return items.length > 0 ? items.find(i=> i[this.component.valueProperty] === value) !== undefined : false;
   }
 }
