@@ -33,6 +33,7 @@ export default class TabsComponent extends NestedComponent {
     super(component, options, data);
     this.currentTab = 0;
     this.validityTabs = [];
+    this.erroredTabs = [];
   }
 
   get defaultSchema() {
@@ -54,6 +55,9 @@ export default class TabsComponent extends NestedComponent {
   }
 
   build(state, showLabel) {
+    this.on('submitToTabs', () => {
+      this.navigateToErroredTab();
+    });
     if (this.options.flatten) {
       this.element = super.createElement();
       this.component.components.forEach((tab) => {
@@ -238,4 +242,68 @@ export default class TabsComponent extends NestedComponent {
       }
     }
   }
+
+  navigateToErroredTab() {
+    this.erroredTabs = [];
+    this.fillErroredTabs(this.components);
+    const erroredTab = this.findNearestTab();
+    this.setTab(erroredTab, {});
+  }
+
+  fillErroredTabs(components) {
+    if (!components) {
+      return;
+    }
+    for (let i = 0; i < components.length; i++) {
+      const comp = components[i];
+      const tab = this.getComponentTabLocation(this.getKey(comp));
+      if (tab !== null && !this.erroredTabs.includes(tab) && comp.error) {
+        this.erroredTabs.push(tab);
+      }
+      this.fillErroredTabs(comp.components);
+    }
+  }
+
+  getComponentTabLocation(compKey) {
+    for (let i = 0; i < this.componentComponents.length; i++) {
+      const tab = this.componentComponents[i];
+      const found = this.findComponent(tab.components, compKey);
+      if (found) {
+        return i;
+      }
+    }
+    return null;
+  }
+
+  findComponent(components, compKey) {
+    if (!components) {
+      return false;
+    }
+    for (let i = 0; i < components.length; i++) {
+      const cmp = components[i];
+      if (this.getKey(cmp) === compKey || this.findComponent(cmp.components, compKey)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getKey(comp) {
+    return comp.key;
+  }
+
+  findNearestTab() {
+    if (this.erroredTabs.length === 0 || this.erroredTabs.includes(this.currentTab)) {
+      return this.currentTab;
+    }
+
+    const greaterThanValues =  this.erroredTabs.filter(n=> n > this.currentTab);
+    const lessThanValues =  this.erroredTabs.filter(n=> n < this.currentTab);
+
+    if (greaterThanValues.length === 0) {
+      return lessThanValues[lessThanValues.length - 1];
+    }
+    return greaterThanValues[0];
+  }
 }
+
