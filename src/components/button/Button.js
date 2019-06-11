@@ -141,9 +141,12 @@ export default class ButtonComponent extends BaseComponent {
     let onError = null;
     if (this.component.action === 'submit') {
       const message = this.ce('div');
-      this.on('submitButton', () => {
-        this.loading = true;
-        this.disabled = true;
+      this.on('submitButton', (payload) => {
+        const id = payload.id;
+        if (id === this.id) {
+          this.loading = true;
+          this.disabled = true;
+        }
       }, true);
       this.on('submitDone', () => {
         this.loading = false;
@@ -215,7 +218,8 @@ export default class ButtonComponent extends BaseComponent {
           event.preventDefault();
           event.stopPropagation();
           this.emit('submitButton', {
-            state: this.component.state || 'submitted'
+            state: this.component.state || 'submitted',
+            id : this.id
           });
           break;
         case 'event':
