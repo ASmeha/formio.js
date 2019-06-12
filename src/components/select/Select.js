@@ -323,6 +323,7 @@ export default class SelectComponent extends BaseComponent {
     else {
       this.selectOptions = [];
     }
+
     this.loadedItems = items.length;
     this.currentItems = items;
 
@@ -336,6 +337,8 @@ export default class SelectComponent extends BaseComponent {
     }
 
     // Iterate through each of the items.
+    this.selectOptions = [];
+
     _.each(items, (item) => {
       this.addOption(this.itemValue(item), this.itemTemplate(item));
     });
