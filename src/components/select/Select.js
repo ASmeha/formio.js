@@ -48,7 +48,7 @@ export default class SelectComponent extends BaseComponent {
     super(component, options, data);
 
     // Trigger an update.
-    this.triggerUpdate = _.debounce(this.updateItems.bind(this), 100);
+    this.triggerUpdate = _.debounce(this.updateItems.bind(this), 500);
 
     // Keep track of the select options.
     this.selectOptions = [];
